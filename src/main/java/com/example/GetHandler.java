@@ -33,12 +33,15 @@ package com.example;
  * #L%
  */
 import org.json.simple.JSONObject;
+
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
 
 class GetHandler {
 
     String doGet(Queue queue) {
+
         Map.Entry<String, Message> entry = (Map.Entry<String, Message>) queue.getQueue().entrySet().iterator().next();
         String key = entry.getKey();
         String value = entry.getValue().getText();
@@ -49,5 +52,14 @@ class GetHandler {
         queue.getInFlightQueue().put(key, new Message(value, reCount, time));
         String message = "{\"ID\": " + key + "," + "\"Message Body\": " + value + "}";
         return message;
+    }
+
+    String doGet(Queue queue, String messageID) {
+
+        for (Map.Entry<String, Message> iter : queue.getQueue().entrySet())
+            System.out.println("Key = " + iter.getKey() + ", Value = " + iter.getValue().getText());
+
+        queue.getQueue().remove(messageID);
+        return "Extra Message Deleted";
     }
 }

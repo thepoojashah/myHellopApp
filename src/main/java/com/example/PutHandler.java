@@ -33,8 +33,6 @@ package com.example;
  * #L%
  */
 
-import java.util.*;
-
 class PutHandler {
 
     String response;

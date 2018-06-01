@@ -40,8 +40,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.UUID;
-
 import org.jgroups.Message;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class App extends NanoHTTPD {
 
@@ -52,8 +54,6 @@ public class App extends NanoHTTPD {
     GetHandler implementGet = new GetHandler();
 
     DeleteHandler implementDelete = new DeleteHandler();
-
-    // RequestOptions options = new RequestOptions(ResponseMode.GET_ALL, 5000);
 
     static nodeCommunication comm;
 

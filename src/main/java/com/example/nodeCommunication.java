@@ -42,12 +42,11 @@ import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.blocks.ResponseMode;
-import org.jgroups.util.Buffer;
 import org.jgroups.util.RspList;
 import org.jgroups.util.Util;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.Set;
 
 public class nodeCommunication extends ReceiverAdapter implements RequestHandler {
 
@@ -60,13 +59,14 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
     RequestOptions options = new RequestOptions(ResponseMode.GET_FIRST, 60000).setTransientFlags(org.jgroups.Message.TransientFlag.DONT_LOOPBACK).SYNC();
 
     public static void main(String[] args) throws Exception {
-        new SimpleChat().start();
+        new nodeCommunication().start();
     }
 
     public void start() throws Exception {
-        channel = new JChannel();
-        disp = new MessageDispatcher(channel, this);
+        channel = new JChannel().setDiscardOwnMessages(true);
+        channel.setReceiver(this);
         channel.connect("ChatCluster");
+        disp = new MessageDispatcher(channel, this);
     }
 
     public void putHandling(String queue, String message, String messageID) {
@@ -75,6 +75,18 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             line = "put:" + queue + ":" + message + ":" + messageID;
             byte[] toSend = Util.stringToBytes(line);
             rsp_list = disp.castMessage(null, toSend, 0, toSend.length, options);
+            Set set = rsp_list.keySet();
+            Iterator<Address> iter = set.iterator();
+            Address extra = channel.getAddress();
+            while (iter.hasNext()) {
+                extra = iter.next();
+            }
+            System.out.println(extra);
+            line = "deleteExtra:" + queue + ":" + messageID;
+            Message msg = new Message(extra, line).setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
+            byte[] send = Util.stringToBytes(line);
+            disp.sendMessage(extra, send, 0, send.length, options);
+            System.out.println(line);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -84,7 +96,6 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         try {
             String line = "";
             line = "get:" + queue;
-            Address self = channel.getAddress();
             byte[] msg = Util.stringToBytes(line);
             rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
         } catch (Exception e) {
@@ -96,7 +107,6 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         try {
             String line = "";
             line = "delete:" + queue + ":" + messageID;
-            Address self = channel.getAddress();
             byte[] msg = Util.stringToBytes(line);
             if (type.equals("normal"))
                 rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
@@ -107,6 +117,10 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         } catch (Exception e) {
             System.out.println(e);
         }
+    }
+
+    public void viewAccepted(View new_view) {
+        System.out.println("** view: " + new_view);
     }
 
     @Override
@@ -134,13 +148,12 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             String messageID = receivedMessage[2];
             DeleteHandler deleteHandler = new DeleteHandler();
             response = deleteHandler.doDelete(App.mainHashMap.get(queue_name), messageID);
+        } else if (receivedMessage[0].equals("deleteExtra")) {
+            GetHandler get = new GetHandler();
+            response = get.doGet(App.mainHashMap.get(receivedMessage[1]), receivedMessage[2]);
+            System.out.println(response);
         }
         return response;
-    }
-
-    @Override
-    public void viewAccepted(View new_view) {
-        System.out.println("** view: " + new_view);
     }
 
 }
