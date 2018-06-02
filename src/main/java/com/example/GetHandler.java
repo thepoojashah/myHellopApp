@@ -62,4 +62,10 @@ class GetHandler {
         queue.getQueue().remove(messageID);
         return "Extra Message Deleted";
     }
+
+    String doGetCluster(Queue queue, String messageID) {
+        String value = queue.getQueue().get(messageID).getText();
+        String response = "{\"ID\": " + messageID + "," + "\"Message Body\": " + value + "}";
+        return response;
+    }
 }

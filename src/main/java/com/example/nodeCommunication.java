@@ -92,10 +92,10 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         }
     }
 
-    public void getHandling(String queue) {
+    public void getHandling(String queue, String messageID) {
         try {
             String line = "";
-            line = "get:" + queue;
+            line = "get:" + queue + ":" + messageID;
             byte[] msg = Util.stringToBytes(line);
             rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
         } catch (Exception e) {
@@ -136,11 +136,13 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             String messageID = receivedMessage[3];
             PutHandler putHandler = new PutHandler();
             response = putHandler.doPut(App.mainHashMap.get(queue_name), message, messageID);
+
         } else if (receivedMessage[0].equals("get")) {
 
             String queue_name = receivedMessage[1];
+            String messageID = receivedMessage[2];
             GetHandler getHandler = new GetHandler();
-            response = getHandler.doGet(App.mainHashMap.get(queue_name));
+            response = getHandler.doGetCluster(App.mainHashMap.get(queue_name), messageID);
 
         } else if (receivedMessage[0].equals("delete")) {
 
@@ -148,6 +150,7 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             String messageID = receivedMessage[2];
             DeleteHandler deleteHandler = new DeleteHandler();
             response = deleteHandler.doDelete(App.mainHashMap.get(queue_name), messageID);
+
         } else if (receivedMessage[0].equals("deleteExtra")) {
             GetHandler get = new GetHandler();
             response = get.doGet(App.mainHashMap.get(receivedMessage[1]), receivedMessage[2]);

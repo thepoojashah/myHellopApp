@@ -43,6 +43,7 @@ import java.util.UUID;
 import org.jgroups.Message;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 public class App extends NanoHTTPD {
@@ -136,7 +137,9 @@ public class App extends NanoHTTPD {
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, "text/plain", response);
                     } else {
                         response=implementGet.doGet(mainHashMap.get(uriComponents[2]));
-                        comm.getHandling(uriComponents[2]);
+                        JSONObject json=(JSONObject) JSONValue.parse(response);
+                        String messageID = json.get("ID").toString();
+                        comm.getHandling(uriComponents[2], messageID);
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", response);
                     }
                 } else {
