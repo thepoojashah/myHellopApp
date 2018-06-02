@@ -42,6 +42,7 @@ class PutHandler {
         Message messagebody = new Message(message, 0);
         queue.getQueue().put(messageID, messagebody);
         response = "Success : Entry created successfully";
+        System.out.println(response);
         return response;
     }
 }

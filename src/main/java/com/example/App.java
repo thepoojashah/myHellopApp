@@ -137,9 +137,16 @@ public class App extends NanoHTTPD {
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, "text/plain", response);
                     } else {
                         response=implementGet.doGet(mainHashMap.get(uriComponents[2]));
-                        JSONObject json=(JSONObject) JSONValue.parse(response);
-                        String messageID = json.get("ID").toString();
-                        comm.getHandling(uriComponents[2], messageID);
+                        try {
+                            JSONParser jsonParser = new JSONParser();
+                            JSONObject jsonObj = (JSONObject) jsonParser.parse(response);
+                            String messageID = (String) jsonObj.get("ID");
+                            System.out.println(messageID);
+                            comm.getHandling(uriComponents[2], messageID);
+                        }
+                        catch (Exception e) {
+                            System.err.println(e);
+                        }
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", response);
                     }
                 } else {

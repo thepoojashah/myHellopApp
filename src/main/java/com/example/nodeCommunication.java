@@ -95,6 +95,7 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         try {
             String line = "";
             line = "get:" + queue + ":" + messageID;
+            System.out.println(line);
             byte[] msg = Util.stringToBytes(line);
             rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
         } catch (Exception e) {
@@ -108,7 +109,7 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             line = "delete:" + queue + ":" + messageID;
             byte[] msg = Util.stringToBytes(line);
             rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
-            } catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
@@ -135,6 +136,7 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
 
             String queue_name = receivedMessage[1];
             String messageID = receivedMessage[2];
+            System.out.println("get");
             GetHandler getHandler = new GetHandler();
             response = getHandler.doGetCluster(App.mainHashMap.get(queue_name), messageID);
 

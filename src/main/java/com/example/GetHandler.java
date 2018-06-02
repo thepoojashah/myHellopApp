@@ -34,6 +34,7 @@ package com.example;
  */
 import org.json.simple.JSONObject;
 
+import javax.json.Json;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
@@ -50,7 +51,12 @@ class GetHandler {
         Date date = new Date();
         long time = date.getTime();
         queue.getInFlightQueue().put(key, new Message(value, reCount, time));
-        String message = "{\"ID\": " + key + "," + "\"Message Body\": " + value + "}";
+        String message = "";
+        try {
+            message = Json.createObjectBuilder().add("ID", key).add("Message Body", value).build().toString();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         return message;
     }
 
@@ -65,7 +71,17 @@ class GetHandler {
 
     String doGetCluster(Queue queue, String messageID) {
         String value = queue.getQueue().get(messageID).getText();
-        String response = "{\"ID\": " + messageID + "," + "\"Message Body\": " + value + "}";
-        return response;
+        int reCount = queue.getQueue().get(messageID).increaseCount();
+        queue.getQueue().remove(messageID);
+        Date date = new Date();
+        long time = date.getTime();
+        queue.getInFlightQueue().put(messageID, new Message(value, reCount, time));
+        String message = "";
+        try {
+            message = Json.createObjectBuilder().add("ID", messageID).add("Message Body", value).build().toString();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return message;
     }
 }
