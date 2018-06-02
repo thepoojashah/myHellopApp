@@ -54,7 +54,6 @@ class ScheduledTask extends TimerTask {
         long time = date.getTime();
         LinkedHashSet<String> temporaryQueue = new LinkedHashSet<>();
         LinkedHashSet<String> temporaryDeadQueue = new LinkedHashSet<>();
-        int flag1 = 0, flag2 = 0;
         int position = 0;
         for (Map.Entry<String, Message> entry : queue.getInFlightQueue().entrySet()) {
             long entryTime = entry.getValue().getTime();
@@ -63,17 +62,13 @@ class ScheduledTask extends TimerTask {
                 temporaryQueue.add(entry.getKey());
                 queue.putMessage(position, entry.getKey(),entry.getValue());
                 position++;
-                flag1=1;
             }
             else if(count >= queue.getMaxRDCount()) {
-                flag2=1;
                 temporaryDeadQueue.add(entry.getKey());
                 queue.getDeadLetterQueue().put(entry.getKey(),entry.getValue());
             }
         }
-        if(flag1 == 1)
-            queue.getInFlightQueue().keySet().removeAll(temporaryQueue);
-        if(flag2 == 1)
-            queue.getInFlightQueue().keySet().removeAll(temporaryDeadQueue);
+        queue.getInFlightQueue().keySet().removeAll(temporaryQueue);
+        queue.getInFlightQueue().keySet().removeAll(temporaryDeadQueue);
     }
 }

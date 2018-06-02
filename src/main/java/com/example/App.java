@@ -149,12 +149,12 @@ public class App extends NanoHTTPD {
             case DELETE:
                 if (uriComponents[1].equals("queue") && mainHashMap.containsKey(uriComponents[2])) {
                     if (mainHashMap.get(uriComponents[2]).getInFlightQueue().isEmpty()) {
-                        comm.deleteHandling(uriComponents[2], uriComponents[4], "empty");
+                        comm.deleteHandling(uriComponents[2], uriComponents[4]);
                         response = "Success : Entry deleted from queue";
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/plain", response);
                     } else {
                         response=implementDelete.doDelete(mainHashMap.get(uriComponents[2]), uriComponents[4]);
-                        comm.deleteHandling(uriComponents[2], uriComponents[4], "normal");
+                        comm.deleteHandling(uriComponents[2], uriComponents[4]);
                         return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/plain", response);
                     }
                 } else {

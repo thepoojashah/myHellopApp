@@ -83,7 +83,6 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
             }
             System.out.println(extra);
             line = "deleteExtra:" + queue + ":" + messageID;
-            Message msg = new Message(extra, line).setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
             byte[] send = Util.stringToBytes(line);
             disp.sendMessage(extra, send, 0, send.length, options);
             System.out.println(line);
@@ -103,18 +102,13 @@ public class nodeCommunication extends ReceiverAdapter implements RequestHandler
         }
     }
 
-    public void deleteHandling(String queue, String messageID, String type) {
+    public void deleteHandling(String queue, String messageID) {
         try {
             String line = "";
             line = "delete:" + queue + ":" + messageID;
             byte[] msg = Util.stringToBytes(line);
-            if (type.equals("normal"))
-                rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
-            else if (type.equals("empty"))
-                rsp_list =
-                        disp.castMessage(null, msg, 0, msg.length,
-                                new RequestOptions(ResponseMode.GET_ALL, 60000).setTransientFlags(org.jgroups.Message.TransientFlag.DONT_LOOPBACK).SYNC());
-        } catch (Exception e) {
+            rsp_list = disp.castMessage(null, msg, 0, msg.length, options);
+            } catch (Exception e) {
             System.out.println(e);
         }
     }
