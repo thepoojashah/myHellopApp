@@ -58,6 +58,8 @@ public class App extends NanoHTTPD {
 
     static nodeCommunication comm;
 
+    static DataHandler initialize = new DataHandler();
+
     public App() throws Exception {
         super(8080);
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -80,10 +82,18 @@ public class App extends NanoHTTPD {
         time1.schedule(task1, 0, 5000);
         time2.schedule(task2, 0, 5000);
         time3.schedule(task3, 0, 5000);
+
+        Timer updateTimer = new Timer();
+        ScheduledUpdate updateTask = new ScheduledUpdate();
+        updateTimer.schedule(updateTask, 60000, 1800000);
+
         try {
             new App();
+            initialize.initializeData();
             comm = new nodeCommunication();
             comm.start();
+            initialize.initializeData();
+
         } catch (IOException ioe) {
             System.err.println("Couldn't start server:\n" + ioe);
         } catch (Exception e) {
